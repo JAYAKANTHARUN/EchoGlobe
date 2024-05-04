@@ -1,6 +1,6 @@
 <template>
     <div class="text-3xl font-poppins">
-        Home
+        Voice Translator
     </div>
 </template>
 
