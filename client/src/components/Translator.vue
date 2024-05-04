@@ -36,9 +36,16 @@
                             <option v-for="language in languages" :value="language.code">{{ language.name }}</option>
                         </select>
                     </div>
-                    <p class="text-green-500 font-poppins text-xl mt-10">{{ message1 }}</p>
-                    <p v-if="outputData" class="mt-10 mb-3 font-poppins text-xl text-white">Translated Data : </p>
-                    <p v-if="outputData" class="font-poppins text-2xl text-white">{{ outputData }}</p>
+
+                    <div v-if="isLoading1" class="loading flex justify-center items-center mt-[200px]">
+                        <p class="text-white font-poppins text-xl">Loading...</p>
+                    </div>
+
+                    <div v-else>
+                        <p class="text-green-500 font-poppins text-xl mt-10">{{ message1 }}</p>
+                        <p v-if="outputData" class="mt-10 mb-3 font-poppins text-xl text-white">Translated Data : </p>
+                        <p v-if="outputData" class="font-poppins text-2xl text-white">{{ outputData }}</p>
+                    </div>
                 </div>
 
                 <div class="w-1/2 p-10 border-[1px] border-white rounded-[50px] h-[75vh]">
@@ -52,15 +59,19 @@
                             </option>
                         </select>
                     </div>
+                    <div v-if="isLoading2" class="loading flex justify-center items-center mt-[200px]">
+                        <p class="text-white font-poppins text-xl">Loading...</p>
+                    </div>
+                    <div v-else>
+                        <p v-if="outputURL" class="text-green-500 font-poppins mt-10 text-xl  ">{{ message2 }}</p>
 
-                    <p v-if="outputURL" class="text-green-500 font-poppins mt-10 text-xl  ">{{message2}}</p>
+                        <p v-if="outputURL" class="mt-10 font-poppins text-xl text-white">outputURL : </p>
+                        <p v-if="outputURL" class="font-poppins text-xl text-white ">{{ outputURL }}</p>
 
-                    <p v-if="outputURL" class="mt-10 font-poppins text-xl text-white">outputURL : </p>
-                    <p v-if="outputURL" class="font-poppins text-xl text-white ">{{ outputURL }}</p>
-
-                    <audio v-if="outputURL" class="mt-10" controls :src="outputURL">
-                        Your browser does not support the audio element.
-                    </audio>
+                        <audio v-if="outputURL" class="mt-10" controls :src="outputURL">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
 
                 </div>
 
@@ -75,6 +86,9 @@ import bgImage from '../images/Translator.jpg';
 export default {
     data() {
         return {
+            isLoading1: false,
+            isLoading2: false,
+
             message1: '',
             message2: '',
 
@@ -90,9 +104,7 @@ export default {
             outputURL: '',
 
             sourceLanguage: '',
-            targetLanguage: '',
-
-            languages: [
+            targetLanguage: '', languages: [
                 {
                     "code": "af",
                     "name": "Afrikaans"
@@ -2840,7 +2852,7 @@ export default {
                 url: 'https://cloudlabs-text-to-speech.p.rapidapi.com/synthesize',
                 headers: {
                     'content-type': 'application/x-www-form-urlencoded',
-                    'X-RapidAPI-Key': '8779985532msheca9242aeea4197p10d9e5jsn837999785d3e', //if api not working, use this : 1622fc62e9msh5cdb1bfaca20f44p1e14b0jsn13965ba27a62
+                    'X-RapidAPI-Key': '1622fc62e9msh5cdb1bfaca20f44p1e14b0jsn13965ba27a62',
                     'X-RapidAPI-Host': 'cloudlabs-text-to-speech.p.rapidapi.com'
                 },
                 data: encodedParams,
@@ -2852,6 +2864,7 @@ export default {
                 if (response.data.status == 'success') {
                     this.message2 = 'Audio file Generated'
                     this.outputURL = response.data.result.audio_url
+                    this.isLoading2 = false;
                 }
             } catch (error) {
                 console.error(error);
@@ -2881,6 +2894,7 @@ export default {
                     if (response.data.status == 'success') {
                         this.message1 = 'Translation successful';
                         this.outputData = response.data.data.translatedText;
+                        this.isLoading1 = false;
                         this.pronounce();
                     }
                 } catch (error) {
@@ -2889,6 +2903,8 @@ export default {
                 }
             }
             else {
+                this.isLoading1 = false;
+                this.isLoading2 = false;
                 alert("Please ensure all fields are filled out correctly");
             }
         },
@@ -2905,6 +2921,9 @@ export default {
             }
         },
         startRecognition() {
+            this.inputData = '';
+            this.isLoading1 = true;
+            this.isLoading2 = true;
             this.micStatus = 'Listening...';
             this.recognition = new window.webkitSpeechRecognition();
             this.recognition.interimResults = true;
