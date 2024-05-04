@@ -11,13 +11,15 @@
 
                 <div class="w-1/4 p-10 border rounded-[50px] h-[75vh]">
                     <div class="flex items-center">
-                        <label for="sourceLanguage" class="block text-base font-poppins pr-2 text-white">Source Language </label>
+                        <label for="sourceLanguage" class="block text-base font-poppins pr-2 text-white">Source Language
+                        </label>
                         <select id="sourceLanguage" v-model="sourceLanguage" class=" font-poppins border rounded">
                             <option v-for="language in languages" :value="language.code">{{ language.name }}</option>
                         </select>
                     </div>
 
-                    <button @click="toggleRecognition" class="my-10 bg-blue-700 hover:bg-blue-900 transition-all duration-300 text-white p-3 rounded-full">
+                    <button @click="toggleRecognition"
+                        class="my-10 bg-blue-700 hover:bg-blue-900 transition-all duration-300 text-white p-3 rounded-full">
                         Start Microphone
                     </button>
 
@@ -25,24 +27,43 @@
 
                     <p class="my-10 font-poppins text-2xl text-white ">{{ inputData }}</p>
                 </div>
+
+                <div class="w-1/4 p-10 border-[1px] border-white rounded-[50px] h-[75vh]">
+                    <div class="flex items-center">
+                        <label for="targetLanguage" class="block text-base font-poppins pr-2 text-white">Target Language
+                        </label>
+                        <select id="targetLanguage" v-model="targetLanguage" class=" font-poppins border rounded">
+                            <option v-for="language in languages" :value="language.code">{{ language.name }}</option>
+                        </select>
+                    </div>
+                    <p class="text-green-500 font-poppins text-xl mt-10">{{ message }}</p>
+                    <p v-if="outputData" class="mt-10 mb-3 font-poppins text-xl text-white">Translated Data : </p>
+                    <p v-if="outputData" class="font-poppins text-2xl text-white">{{ outputData }}</p>
+                </div>
+
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
 import bgImage from '../images/Translator.jpg';
 export default {
     data() {
         return {
+            message: '',
+
             bgImage,
 
             micStatus: 'OFF',
             recognition: null,
 
             inputData: '',
+            outputData: '',
 
             sourceLanguage: '',
+            targetLanguage: '',
 
             languages: [
                 {
@@ -285,11 +306,49 @@ export default {
         };
     },
     methods: {
+        async translate() {
+            if (this.sourceLanguage && this.targetLanguage && this.inputData && this.sourceLanguage !== this.targetLanguage) {
+                const encodedParams = new URLSearchParams();
+                encodedParams.set('source_language', this.sourceLanguage);
+                encodedParams.set('target_language', this.targetLanguage);
+                encodedParams.set('text', this.inputData);
+
+                const options = {
+                    method: 'POST',
+                    url: 'https://text-translator2.p.rapidapi.com/translate',
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded',
+                        'X-RapidAPI-Key': '8257ca243bmsh0ddc264dcc26c21p1cc9f5jsn8943e00c3da7',
+                        'X-RapidAPI-Host': 'text-translator2.p.rapidapi.com'
+                    },
+                    data: encodedParams,
+                };
+
+                try {
+                    const response = await axios.request(options);
+                    if (response.data.status == 'success') {
+                        this.message = 'Translation successful!';
+                        this.outputData = response.data.data.translatedText;
+                    }
+                } catch (error) {
+                    console.error(error)
+                    alert(error.name);
+                }
+            }
+            else {
+                alert("Please ensure all fields are filled out correctly");
+            }
+        },
         toggleRecognition() {
-            if (this.micStatus === 'OFF') {
-                this.startRecognition();
-            } else {
-                this.stopRecognition();
+            if (this.sourceLanguage && this.targetLanguage && this.sourceLanguage !== this.targetLanguage) {
+                if (this.micStatus === 'OFF') {
+                    this.startRecognition();
+                } else {
+                    this.stopRecognition();
+                }
+            }
+            else {
+                alert("Please ensure all fields are filled out correctly");
             }
         },
         startRecognition() {
@@ -321,6 +380,7 @@ export default {
                 this.recognition = null;
             }
             this.micStatus = 'OFF';
+            this.translate();
         },
     },
 }    
