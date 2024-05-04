@@ -36,7 +36,7 @@
                             <option v-for="language in languages" :value="language.code">{{ language.name }}</option>
                         </select>
                     </div>
-                    <p class="text-green-500 font-poppins text-xl mt-10">{{ message }}</p>
+                    <p class="text-green-500 font-poppins text-xl mt-10">{{ message1 }}</p>
                     <p v-if="outputData" class="mt-10 mb-3 font-poppins text-xl text-white">Translated Data : </p>
                     <p v-if="outputData" class="font-poppins text-2xl text-white">{{ outputData }}</p>
                 </div>
@@ -53,7 +53,7 @@
                         </select>
                     </div>
 
-                    <p v-if="outputURL" class="text-green-500 font-poppins mt-10 text-xl  ">Voice Generated</p>
+                    <p v-if="outputURL" class="text-green-500 font-poppins mt-10 text-xl  ">{{message2}}</p>
 
                     <p v-if="outputURL" class="mt-10 font-poppins text-xl text-white">outputURL : </p>
                     <p v-if="outputURL" class="font-poppins text-xl text-white ">{{ outputURL }}</p>
@@ -75,7 +75,8 @@ import bgImage from '../images/Translator.jpg';
 export default {
     data() {
         return {
-            message: '',
+            message1: '',
+            message2: '',
 
             bgImage,
 
@@ -2839,7 +2840,7 @@ export default {
                 url: 'https://cloudlabs-text-to-speech.p.rapidapi.com/synthesize',
                 headers: {
                     'content-type': 'application/x-www-form-urlencoded',
-                    'X-RapidAPI-Key': '8779985532msheca9242aeea4197p10d9e5jsn837999785d3e',
+                    'X-RapidAPI-Key': '8779985532msheca9242aeea4197p10d9e5jsn837999785d3e', //if api not working, use this : 1622fc62e9msh5cdb1bfaca20f44p1e14b0jsn13965ba27a62
                     'X-RapidAPI-Host': 'cloudlabs-text-to-speech.p.rapidapi.com'
                 },
                 data: encodedParams,
@@ -2849,7 +2850,7 @@ export default {
                 const response = await axios.request(options);
                 console.log(response.data)
                 if (response.data.status == 'success') {
-                    this.message = 'Audio file Generated'
+                    this.message2 = 'Audio file Generated'
                     this.outputURL = response.data.result.audio_url
                 }
             } catch (error) {
@@ -2878,9 +2879,9 @@ export default {
                 try {
                     const response = await axios.request(options);
                     if (response.data.status == 'success') {
-                        this.message = 'Translation successful!';
+                        this.message1 = 'Translation successful';
                         this.outputData = response.data.data.translatedText;
-                        //this.pronounce();
+                        this.pronounce();
                     }
                 } catch (error) {
                     console.error(error)
