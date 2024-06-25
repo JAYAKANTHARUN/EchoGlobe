@@ -6,6 +6,7 @@ EchoGlobe is an advanced voice translator application built with Vue.js. It prov
 ## Features
 - Multi-Language Support: Translate between a wide variety of languages with high accuracy.
 - Text Display: Displays the translated text in the selected target language for user verification.
+- Real-Time Translation: Provides quick and efficient voice-to-voice translation.
 
 ## Team members
 1. [Jayakanth Arun](https://github.com/JAYAKANTHARUN)
